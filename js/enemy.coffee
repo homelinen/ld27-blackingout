@@ -7,7 +7,7 @@ define(['./creature'], (Creature) ->
       rect = new iio.Rect(pos, size).enableKinematics()
       rect.setFillStyle( '#ee0000' )
 
-      super( rect, 3, io )
+      super( rect, 1, io )
 
       rect.vel.x = @speed
       rect.vel.y = @speed

@@ -14,5 +14,5 @@ define(['./creature'], (Creature)->
       rect = new iio.Rect(@grid_pos, w, h).enableKinematics()
       rect.setFillStyle( '#00ee00' )
 
-      super(rect, 6, io)
+      super(rect, 2, io)
 )
