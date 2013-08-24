@@ -21,28 +21,59 @@ require(['js/lib/iioengine/core/iioEngine.js'], (iioengine) ->
 
     return num
 
-
+  # Player class
+  #
+  # For storing state of the player and drawing them
+  #
+  # Fields:
+  #   rect - The bounding box of the player
+  #   vel - The current velocity of the player
   class Player
 
-    constructor: ( w, h, @grid_pos) ->
+    constructor: ( w, h, @grid_pos, io) ->
       @rect= new iio.Rect(@grid_pos, w, h).enableKinematics()
       @rect.setFillStyle( '#00ee00' )
-      @vel = new iio.Vec(0,0)
+
+      @rect.setVel(0,0)
+
+      bound_options = [
+        { dir: 'left',
+          x: 6, y: 0,
+          constraint: 0 },
+        { dir: 'right',
+          x: -6, y: 0,
+          constraint: io.canvas.width },
+        { dir: 'top',
+          x: 0, y: 6,
+          constraint: 0 },
+        { dir: 'bottom',
+          x: 0,
+          y: -6,
+          constraint: io.canvas.height }
+      ]
+
+      for bound in bound_options
+        do (bound, @rect) ->
+          @rect.setBound(bound.dir, bound.constraint, (obj) ->
+            #FIXME: Magic number
+            obj.vel.x = bound.x
+            obj.vel.y = bound.y
+            return true
+          )
+
 
     move: (x, y)->
-      @vel.add(x,y)
-      @rect.setVel(@vel)
+      @rect.vel.add(x,y)
       return
 
     # Update the logic attributes
     update: ->
-      temp_vel = @vel.clone()
+      temp_vel = @rect.vel.clone()
       temp_vel = safe_normalize(temp_vel)
-      console.log(temp_vel.toString())
 
-      @vel.sub(temp_vel)
-      Math.round(@vel)
-      @rect.setVel(@vel)
+      @rect.vel.sub(temp_vel)
+      @rect.vel.x = Math.round(@rect.vel.x)
+      @rect.vel.y = Math.round(@rect.vel.y)
       return
 
     # Draw the player
@@ -54,7 +85,9 @@ require(['js/lib/iioengine/core/iioEngine.js'], (iioengine) ->
   main = (io) ->
 
     # Set up obj
-    player = new Player( 32, 32, 0, 0 )
+    start_point = new iio.Vec(0,0)
+
+    player = new Player( 32, 32, start_point, io )
 
     grid = new iio.Grid( 0,0, 20, 15, 32, 32 )
     grid.setLineWidth(2)
@@ -94,6 +127,6 @@ require(['js/lib/iioengine/core/iioEngine.js'], (iioengine) ->
 
     return
 
-  iio.start(main)
+  iio.start(main, 200, 400)
   return
 )
