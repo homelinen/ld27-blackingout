@@ -4,17 +4,50 @@
 
 require(['js/lib/iioengine/core/iioEngine.js'], (iioengine) ->
 
+  # Normalise a vector, but handle division by 0
+  safe_normalize = (vec) ->
+    vec.normalize()
+    vec.x = reset_null(vec.x)
+    vec.y = reset_null(vec.y)
+
+    return vec
+
+  # If a value is null, set it to 0
+  #
+  # Returns original number or 0
+  reset_null = (num) ->
+    if isNaN(num)
+      num = 0
+
+    return num
+
+
   class Player
 
     constructor: ( w, h, @grid_pos) ->
-      @rect= new iio.Rect(@grid_pos, w, h)
+      @rect= new iio.Rect(@grid_pos, w, h).enableKinematics()
       @rect.setFillStyle( '#00ee00' )
+      @vel = new iio.Vec(0,0)
 
     move: (x, y)->
-      @rect.translate(x, y)
+      @vel.add(x,y)
+      @rect.setVel(@vel)
+      return
+
+    # Update the logic attributes
+    update: ->
+      temp_vel = @vel.clone()
+      temp_vel = safe_normalize(temp_vel)
+      console.log(temp_vel.toString())
+
+      @vel.sub(temp_vel)
+      Math.round(@vel)
+      @rect.setVel(@vel)
+      return
 
     # Draw the player
     draw: (context)->
+      @rect.update()
       @rect.draw(context)
       return
 
@@ -43,6 +76,11 @@ require(['js/lib/iioengine/core/iioEngine.js'], (iioengine) ->
       else if iio.keyCodeIs 'down arrow', event
         player.move(0, movement)
         return
+    )
+
+    # Logic
+    io.setFramerate(20, ->
+      player.update()
     )
 
     # Drawing
