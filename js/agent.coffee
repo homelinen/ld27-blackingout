@@ -1,7 +1,7 @@
 
 define(['./creature'], (Creature) ->
 
-  class Enemy extends Creature
+  class Agent extends Creature
 
     constructor: (pos, size, io) ->
       rect = new iio.Rect(pos, size).enableKinematics()

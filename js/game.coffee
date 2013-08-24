@@ -5,8 +5,8 @@
 require(['js/lib/iioengine/core/iioEngine.js',
           'js/lib/iioengine/extensions/iioDebugger.js',
           'js/player',
-          'js/enemy',
-          'js/utility'], (iioengine, iiodebugger, Player, Enemy, Utility) ->
+          'js/agent',
+          'js/utility'], (iioengine, iiodebugger, Player, Agent, Utility) ->
 
   main = (io) ->
 
@@ -14,7 +14,9 @@ require(['js/lib/iioengine/core/iioEngine.js',
 
     creatures = []
     enemies = []
+    allies = []
     cell_size = 16
+    team_size = 5
 
     # Set up obj
     start_point = new iio.Vec(io.canvas.center)
@@ -25,8 +27,25 @@ require(['js/lib/iioengine/core/iioEngine.js',
 
     creatures.push player
 
-    for x in [0..9]
-      enemy = new Enemy( new iio.Vec(
+    # Create ally creatures
+    for x in [0..team_size - 1]
+      ally = new Agent( new iio.Vec(
+        iio.getRandomInt(0, io.canvas.width),
+        iio.getRandomInt(0, io.canvas.height)),
+        cell_size,
+        io )
+      ally.rect.setFillStyle('blue') 
+      io.addToGroup('ally', ally.rect, 2)
+      io.addToGroup('creatures', ally.rect, 2)
+
+      allies.push ally
+
+    allies.push player
+    console.log allies
+
+    # Create enemy creatures
+    for x in [0..team_size]
+      enemy = new Agent( new iio.Vec(
         iio.getRandomInt(0, io.canvas.width),
         iio.getRandomInt(0, io.canvas.height)),
         cell_size,
@@ -37,9 +56,13 @@ require(['js/lib/iioengine/core/iioEngine.js',
       enemies.push enemy
 
     creatures = creatures.concat(enemies)
+    creatures = creatures.concat(allies)
+
+    for ally in allies
+      ally.goal = enemies[iio.getRandomInt(0, enemies.length)].rect.pos
 
     for enemy in enemies
-      enemy.goal = creatures[iio.getRandomInt(0, enemies.length)].rect.pos
+      enemy.goal = allies[iio.getRandomInt(0, allies.length)].rect.pos
 
     # Setup map
     map_width = Math.round( io.canvas.width / cell_size )
