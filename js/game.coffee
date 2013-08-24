@@ -72,13 +72,17 @@ require(['js/lib/iioengine/core/iioEngine.js',
     map.setLineWidth(2)
     map.setStrokeStyle('#2e2e2e')
 
-    walls = [
-      [2,2,1],
-      [4,3,2],
-      [10,4,6],
-      [8,1,1],
-      [2,8,3]
-    ]
+
+    walls = []
+
+    # Generate random walls
+    for i in [0..20]
+      # 5 is a reasonable number, should be made statistically
+      walls.push [
+        iio.getRandomInt(0, map.R - 1),
+        iio.getRandomInt(0, map.C - 1),
+        iio.getRandomInt(1, 3)]
+
 
     i=0
     j=0
