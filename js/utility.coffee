@@ -20,5 +20,15 @@ define([], ->
 
     return num
 
+  # Reverse the current direction
+  Utility.reverse = (vec) ->
+    if vec.x != 0
+      vec.x = -(vec.x/vec.x)
+
+    if vec.y != 0
+      vec.y = -(vec.y/vec.y)
+
+    return vec
+
   return Utility
 )
