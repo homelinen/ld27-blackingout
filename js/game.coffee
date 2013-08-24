@@ -3,17 +3,24 @@
 # Author: Calum Gilchrist
 
 require(['js/lib/iioengine/core/iioEngine.js',
-          'js/player'], (iioengine, Player) ->
+          'js/lib/iioengine/extensions/iioDebugger.js',
+          'js/player',
+          'js/enemy'], (iioengine, iiodebugger, Player, Enemy) ->
 
 
   main = (io) ->
+
+    io.activateDebugger()
 
     # Set up obj
     start_point = new iio.Vec(0,0)
 
     player = new Player( 32, 32, start_point, io )
+    io.addToGroup('player', player.rect, 1)
+    enemy = new Enemy( io )
+    io.addToGroup('enemy', enemy.rect, 2)
 
-    grid = new iio.Grid( 0,0, 20, 15, 32, 32 )
+    grid = new iio.Grid( 0,0, 50, 50, 32, 32 )
     grid.setLineWidth(2)
     grid.setStrokeStyle('2e2e2e')
 
@@ -35,9 +42,15 @@ require(['js/lib/iioengine/core/iioEngine.js',
         return
     )
 
+    # Collisions
+    io.setCollisionCallback('player', 'enemy', (obj1, obj2) ->
+      console.log("SMASH")
+    )
+
     # Logic
     io.setFramerate(20, ->
       player.update()
+      enemy.update()
     )
 
     # Drawing
@@ -46,11 +59,12 @@ require(['js/lib/iioengine/core/iioEngine.js',
 
       grid.draw(io.context)
       player.draw(io.context)
+      enemy.draw(io.context)
       return
     )
 
     return
 
-  iio.start(main, 200, 400)
+  iio.start(main, 800, 600)
   return
 )
