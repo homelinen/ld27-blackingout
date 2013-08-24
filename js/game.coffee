@@ -22,7 +22,7 @@ require(['js/lib/iioengine/core/iioEngine.js',
 
     grid = new iio.Grid( 0,0, 50, 50, 32, 32 )
     grid.setLineWidth(2)
-    grid.setStrokeStyle('2e2e2e')
+    grid.setStrokeStyle('#2e2e2e')
 
     # Set up keyboard
     window.addEventListener('keydown', (event) ->
@@ -50,7 +50,7 @@ require(['js/lib/iioengine/core/iioEngine.js',
     # Logic
     io.setFramerate(20, ->
       player.update()
-      enemy.update()
+      enemy.update(player.rect.pos)
     )
 
     # Drawing
