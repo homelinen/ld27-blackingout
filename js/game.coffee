@@ -12,15 +12,34 @@ require(['js/lib/iioengine/core/iioEngine.js',
 
     io.activateDebugger()
 
+    creatures = []
+    enemies = []
+    cell_size = 16
+
     # Set up obj
     start_point = new iio.Vec(0,0)
 
-    player = new Player( 32, 32, start_point, io )
+    player = new Player( cell_size, cell_size, start_point, io )
     io.addToGroup('player', player.rect, 1)
-    enemy = new Enemy( io )
-    io.addToGroup('enemy', enemy.rect, 2)
 
-    grid = new iio.Grid( 0,0, 50, 50, 32, 32 )
+    creatures.push player
+
+    for x in [0..9]
+      enemy = new Enemy( new iio.Vec(
+        iio.getRandomInt(0, io.canvas.width),
+        iio.getRandomInt(0, io.canvas.height)),
+        cell_size,
+        io )
+      io.addToGroup('enemy', enemy.rect, 2)
+      
+      enemies.push enemy
+
+    creatures = creatures.concat(enemies)
+
+    for enemy in enemies
+      enemy.goal = creatures[iio.getRandomInt(0, enemies.length)].rect.pos
+
+    grid = new iio.Grid( 0,0, 50, 50, cell_size, cell_size )
     grid.setLineWidth(2)
     grid.setStrokeStyle('#2e2e2e')
 
@@ -44,13 +63,13 @@ require(['js/lib/iioengine/core/iioEngine.js',
 
     # Collisions
     io.setCollisionCallback('player', 'enemy', (obj1, obj2) ->
-      console.log("SMASH")
     )
 
     # Logic
     io.setFramerate(20, ->
       player.update()
-      enemy.update(player.rect.pos)
+      for enemy in enemies
+        enemy.update()
     )
 
     # Drawing
@@ -59,7 +78,9 @@ require(['js/lib/iioengine/core/iioEngine.js',
 
       grid.draw(io.context)
       player.draw(io.context)
-      enemy.draw(io.context)
+
+      for enemy in enemies
+        enemy.draw(io.context)
       return
     )
 

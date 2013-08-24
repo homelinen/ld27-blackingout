@@ -3,8 +3,8 @@ define(['./creature'], (Creature) ->
 
   class Enemy extends Creature
 
-    constructor: (io) ->
-      rect = new iio.Rect(io.canvas.center, 32).enableKinematics()
+    constructor: (pos, size, io) ->
+      rect = new iio.Rect(pos, size).enableKinematics()
       rect.setFillStyle( '#ee0000' )
 
       super( rect, 3, io )
@@ -14,6 +14,8 @@ define(['./creature'], (Creature) ->
 
       @rect.bounds.right.callback = (obj) ->
         obj.vel.x = - obj.vel.x
+
+      @goal = new iio.Vec(0,0)
 
     # Compare two integers.
     #
@@ -30,18 +32,18 @@ define(['./creature'], (Creature) ->
         0
 
     # Modify velocity to move towards target
-    move_towards: (vec) ->
+    move_towards: ->
 
       cur_pos = @rect.pos
-      dir = @compare(cur_pos.x, vec.x)
+      dir = @compare(cur_pos.x, @goal.x)
 
       @rect.vel.x = dir * @speed
-      dir = @compare(cur_pos.y, vec.y)
+      dir = @compare(cur_pos.y, @goal.y)
 
       @rect.vel.y = dir * @speed
 
       max_speed = 3
-      @speed = cur_pos.distance(vec) / (max_speed * 2)
+      @speed = cur_pos.distance(@goal) / (max_speed * 2)
       if @speed > max_speed
         @speed = max_speed
 
