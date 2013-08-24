@@ -2,85 +2,9 @@
 #
 # Author: Calum Gilchrist
 
-require(['js/lib/iioengine/core/iioEngine.js'], (iioengine) ->
+require(['js/lib/iioengine/core/iioEngine.js',
+          'js/player'], (iioengine, Player) ->
 
-  # Normalise a vector, but handle division by 0
-  safe_normalize = (vec) ->
-    vec.normalize()
-    vec.x = reset_null(vec.x)
-    vec.y = reset_null(vec.y)
-
-    return vec
-
-  # If a value is null, set it to 0
-  #
-  # Returns original number or 0
-  reset_null = (num) ->
-    if isNaN(num)
-      num = 0
-
-    return num
-
-  # Player class
-  #
-  # For storing state of the player and drawing them
-  #
-  # Fields:
-  #   rect - The bounding box of the player
-  #   vel - The current velocity of the player
-  class Player
-
-    constructor: ( w, h, @grid_pos, io) ->
-      @rect= new iio.Rect(@grid_pos, w, h).enableKinematics()
-      @rect.setFillStyle( '#00ee00' )
-
-      @rect.setVel(0,0)
-
-      bound_options = [
-        { dir: 'left',
-          x: 6, y: 0,
-          constraint: 0 },
-        { dir: 'right',
-          x: -6, y: 0,
-          constraint: io.canvas.width },
-        { dir: 'top',
-          x: 0, y: 6,
-          constraint: 0 },
-        { dir: 'bottom',
-          x: 0,
-          y: -6,
-          constraint: io.canvas.height }
-      ]
-
-      for bound in bound_options
-        do (bound, @rect) ->
-          @rect.setBound(bound.dir, bound.constraint, (obj) ->
-            #FIXME: Magic number
-            obj.vel.x = bound.x
-            obj.vel.y = bound.y
-            return true
-          )
-
-
-    move: (x, y)->
-      @rect.vel.add(x,y)
-      return
-
-    # Update the logic attributes
-    update: ->
-      temp_vel = @rect.vel.clone()
-      temp_vel = safe_normalize(temp_vel)
-
-      @rect.vel.sub(temp_vel)
-      @rect.vel.x = Math.round(@rect.vel.x)
-      @rect.vel.y = Math.round(@rect.vel.y)
-      return
-
-    # Draw the player
-    draw: (context)->
-      @rect.update()
-      @rect.draw(context)
-      return
 
   main = (io) ->
 
