@@ -8,6 +8,33 @@ require(['js/lib/iioengine/core/iioEngine.js',
           'js/agent',
           'js/utility'], (iioengine, iiodebugger, Player, Agent, Utility) ->
 
+  # Create a group of agents and add them to the list
+  #
+  # agent_list - Array to add the new agents to
+  # enemy_list - A list of agents in the opposite number
+  create_agents = (agent_list, , team_size)->
+
+    # Create agent creatures
+    for x in [0..team_size]
+      agent = new Agent( new iio.Vec(
+        iio.getRandomInt(0, io.canvas.width),
+        iio.getRandomInt(0, io.canvas.height)),
+        cell_size,
+        io )
+      io.addToGroup('agent', agent.rect, 2)
+      io.addToGroup('creatures', agent.rect, 2)
+      
+      agent_list.push agent
+
+
+  add_goals = (agent_list, enemy_list) ->
+    # FIXME: Circular dependency in enemy list,
+    # new function required
+    for agent in enemies
+      agent.goal = allies[iio.getRandomInt(0, allies.length)].rect.pos
+
+
+
   main = (io) ->
 
     #io.activateDebugger()
@@ -41,7 +68,9 @@ require(['js/lib/iioengine/core/iioEngine.js',
       allies.push ally
 
     allies.push player
-    console.log allies
+
+    for ally in allies
+      ally.goal = enemies[iio.getRandomInt(0, enemies.length)].rect.pos
 
     # Create enemy creatures
     for x in [0..team_size]
@@ -55,14 +84,11 @@ require(['js/lib/iioengine/core/iioEngine.js',
       
       enemies.push enemy
 
-    creatures = creatures.concat(enemies)
-    creatures = creatures.concat(allies)
-
-    for ally in allies
-      ally.goal = enemies[iio.getRandomInt(0, enemies.length)].rect.pos
-
     for enemy in enemies
       enemy.goal = allies[iio.getRandomInt(0, allies.length)].rect.pos
+
+    creatures = creatures.concat(enemies)
+    creatures = creatures.concat(allies)
 
     # Setup map
     map_width = Math.round( io.canvas.width / cell_size )
